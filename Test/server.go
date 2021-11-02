@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-type Game struct {
+type Game_s struct {
 	Turn  bool       `json:"turn"`
 	Board [][]string `json:"board"`
 }
 
 func createGame() ([]byte, error) {
-	j := Game{Turn: true, Board: [][]string{
+	j := Game_s{Turn: true, Board: [][]string{
 		{"_", "_", "_"}, {"_", "_", "_"}, {"_", "_", "_"},
 	}}
 
@@ -31,7 +31,7 @@ func createGame() ([]byte, error) {
 }
 
 
-func main() {
+func main_server() {
 	arguments := os.Args
 	if len(arguments) == 1 {
 		fmt.Println("Please provide port number")
