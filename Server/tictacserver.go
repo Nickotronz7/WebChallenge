@@ -12,8 +12,8 @@ import (
 )
 
 type Game struct {
-	Move  int        `json:"move"`
-	Board [][]string `json:"board"`
+	GameOn bool       `json:"gameOn"`
+	Board  [][]string `json:"board"`
 }
 
 func main() {
@@ -25,6 +25,8 @@ func main() {
 	}
 
 	PORT := ":" + arguments[1]
+	// PORT := ":65000"
+
 	l, err := net.Listen("tcp", PORT)
 	if err != nil {
 		fmt.Println(err)
@@ -55,55 +57,56 @@ func main() {
 	for gameOn {
 		printBoard(board)
 		fmt.Printf("It's %s's turn\n", currentPlayer)
-		move := getMove(currentPlayer)
-		makeMove(board, move, currentPlayer)
-
-		checkGameState(board, &gameOn, &currentPlayer)
+		makeMove(board, currentPlayer)
+		printBoard(board)
+		checkGameState(board, &gameOn, "X")
 
 		if gameOn {
-			gameState, _ := createJson(board)
+			gameState, _ := createJson(board, gameOn)
 			fmt.Fprintf(c, string(gameState)+"\n")
-
+			fmt.Println("Waiting for other player...")
+			// se lee la respuesta del otro jugador
 			netData, err := bufio.NewReader(c).ReadString('\n')
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-
-			var response Game
+			
+			var game Game
 			netData = netData[:len(netData)-1]
-			err = json.Unmarshal([]byte(netData), &response)
-
+			err = json.Unmarshal([]byte(netData), &game)
+			
 			if err != nil {
 				fmt.Println(err)
 			}
+			
+			board = game.Board
+			gameOn = game.GameOn
+			checkGameState(board, &gameOn, "O")
 
-			board = response.Board
-			makeMove(board, response.Move, currentPlayer)
-
-			checkGameState(board, &gameOn, &currentPlayer)
+		} else {
+			printBoard(board)
+			gameState, _ := createJson(board, gameOn)
+			fmt.Fprintf(c, string(gameState)+"\n")
+			return
 		}
-
 	}
 }
 
-func checkGameState(board [][]string, gameState *bool, currentPlayer *string) {
-	if win(board, *currentPlayer) {
-		printBoard(board)
-		fmt.Printf("%s wins!\n", *currentPlayer)
+func checkGameState(board [][]string, gameState *bool, currentPlayer string) {
+	if win(board, currentPlayer) {
+		// printBoard(board)
+		fmt.Printf("%s wins!\n", currentPlayer)
 		*gameState = false
 	} else if fullBoard(board) {
 		printBoard(board)
 		fmt.Println("It's a tie!")
 		*gameState = false
-	} else {
-		switchPlayer(currentPlayer)
 	}
 }
 
-func createJson(board [][]string) ([]byte, error) {
-
-	jStructure := Game{Move: 0, Board: board}
+func createJson(board [][]string, gameOn bool) ([]byte, error) {
+	jStructure := Game{GameOn: gameOn, Board: board}
 	bjStructure, err := json.Marshal(jStructure)
 
 	if err != nil {
@@ -120,20 +123,31 @@ func printBoard(board [][]string) {
 }
 
 func getMove(player string) (move int) {
-	fmt.Printf("%s, what is your move? ", player)
+	fmt.Printf("%s, what is your move? \n", player)
 	fmt.Scanf("%d", &move)
-	return
+	return move
 }
 
-func makeMove(board [][]string, move int, player string) {
-	if move < 1 || move > 9 {
-		fmt.Println("Invalid move")
-		return
+func makeMove(board [][]string, player string) {
+	move := 0
+	move = getMove("X")
+	for {
+		if (move <= 0) || (move >= 9) {
+			fmt.Printf(">>>Move %d out of range<<<\n", move)
+			move = getMove("X")
+		} else {
+			move--
+			row := move / 3
+			column := move % 3
+			if board[row][column] == "_" {
+				board[row][column] = player
+				break
+			} else {
+				fmt.Printf(">>Move %d, not allowed<<\n", move)
+				move = getMove("X")
+			}
+		}
 	}
-	move--
-	row := move / 3
-	column := move % 3
-	board[row][column] = player
 }
 
 func win(board [][]string, player string) bool {
