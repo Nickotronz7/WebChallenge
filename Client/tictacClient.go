@@ -44,7 +44,6 @@ func main() {
 			break
 		}
 
-		fmt.Printf("It's O's turn")
 		makeMove(game.Board, "O")
 
 		printBoard(game.Board)
@@ -65,14 +64,14 @@ func main() {
 }
 
 func getMove(player string) (move int) {
-	fmt.Printf("%s, what is your move? ", player)
+	fmt.Printf("%s, what is your move? \n", player)
 	fmt.Scanf("%d", &move)
-	return
+	return move
 }
 
 func makeMove(board [][]string, player string) {
 	move := 0
-	move = getMove("X")
+	move = getMove("O")
 	for {
 		if (move <= 0) || (move >= 9) {
 			fmt.Printf(">>>Move %d out of range<<<\n", move)
