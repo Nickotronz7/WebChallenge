@@ -25,7 +25,6 @@ func main() {
 	}
 
 	PORT := ":" + arguments[1]
-	// PORT := ":65000"
 
 	l, err := net.Listen("tcp", PORT)
 	if err != nil {
