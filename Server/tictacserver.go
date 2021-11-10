@@ -1,5 +1,3 @@
-// create ticktactoe game with a board of 3x3 and a player to play with X or O with comand line input
-
 package main
 
 import (
@@ -64,7 +62,6 @@ func main() {
 			gameState, _ := createJson(board, gameOn)
 			fmt.Fprintf(c, string(gameState)+"\n")
 			fmt.Println("Waiting for other player...")
-			// se lee la respuesta del otro jugador
 			netData, err := bufio.NewReader(c).ReadString('\n')
 			if err != nil {
 				fmt.Println(err)
@@ -94,7 +91,6 @@ func main() {
 
 func checkGameState(board [][]string, gameState *bool, currentPlayer string) {
 	if win(board, currentPlayer) {
-		// printBoard(board)
 		fmt.Printf("%s wins!\n", currentPlayer)
 		*gameState = false
 	} else if fullBoard(board) {
@@ -131,7 +127,7 @@ func makeMove(board [][]string, player string) {
 	move := 0
 	move = getMove("X")
 	for {
-		if (move <= 0) || (move >= 9) {
+		if (move <= 0) || (move > 9) {
 			fmt.Printf(">>>Move %d out of range<<<\n", move)
 			move = getMove("X")
 		} else {
@@ -187,9 +183,3 @@ func switchPlayer(player *string) {
 		*player = "X"
 	}
 }
-
-// func check(e error) {
-// 	if e != nil {
-// 		panic(e)
-// 	}
-// }

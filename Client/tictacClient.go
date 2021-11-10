@@ -73,7 +73,7 @@ func makeMove(board [][]string, player string) {
 	move := 0
 	move = getMove("O")
 	for {
-		if (move <= 0) || (move >= 9) {
+		if (move <= 0) || (move > 9) {
 			fmt.Printf(">>>Move %d out of range<<<\n", move)
 			move = getMove("X")
 		} else {
@@ -92,8 +92,6 @@ func makeMove(board [][]string, player string) {
 }
 
 func createJson(board [][]string, gameOn bool) ([]byte, error) {
-
-	// jStructure := Game{Move: 0, Board: board}
 	jStructure := Game{GameOn: gameOn, Board: board}
 	bjStructure, err := json.Marshal(jStructure)
 
@@ -112,7 +110,6 @@ func printBoard(board [][]string) {
 
 func checkGameState(board [][]string, gameState *bool, currentPlayer string) {
 	if win(board, currentPlayer) {
-		// printBoard(board)
 		fmt.Printf("%s wins!\n", currentPlayer)
 		*gameState = false
 	} else if fullBoard(board) {
